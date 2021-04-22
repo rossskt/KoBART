@@ -193,7 +193,7 @@ class Classification(pl.LightningModule):
         optimizer = AdamW(optimizer_grouped_parameters,
                           lr=self.hparams.lr, correct_bias=False)
         # warm up lr
-        num_workers = (self.hparams.gpus if self.hparams.gpus is not None else 1) * (self.hparams.num_nodes if self.hparams.num_nodes is not None else 1)
+        num_workers = (self.hparams.gpus if self.hparams.gpus else 1) * (self.hparams.num_nodes if self.hparams.num_nodes is not None else 1)
         data_len = len(self.train_dataloader().dataset)
         logging.info(f'number of workers {num_workers}, data length {data_len}')
         num_train_steps = int(data_len / (self.hparams.batch_size * num_workers * self.hparams.accumulate_grad_batches) * self.hparams.max_epochs)
