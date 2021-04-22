@@ -58,12 +58,12 @@ class ArgsBase():
             parents=[parent_parser], add_help=False)
         parser.add_argument('--train_file',
                             type=str,
-                            default='faq/train_data.tsv',
+                            default='faq/train_data_idx.tsv',
                             help='train file')
 
         parser.add_argument('--test_file',
                             type=str,
-                            default='faq/test_data.tsv',
+                            default='faq/test_data_idx.tsv',
                             help='test file')
 
         parser.add_argument('--batch_size',
@@ -75,7 +75,7 @@ class ArgsBase():
                             default=128,
                             help='')
         return parser
-
+    
 
 class FAQDataset(Dataset):
     def __init__(self, filepath, max_seq_len=128):
