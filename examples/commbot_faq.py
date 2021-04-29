@@ -61,9 +61,14 @@ class ArgsBase():
                             default='faq/train_data_idx.tsv',
                             help='train file')
 
+        parser.add_argument('--val_file',
+                            type=str,
+                            default='faq/train_data_idx.tsv',
+                            help='validation file')
+
         parser.add_argument('--test_file',
                             type=str,
-                            default='faq/test_data_idx.tsv',
+                            default='faq/train_data_idx.tsv',
                             help='test file')
 
         parser.add_argument('--batch_size',
@@ -109,6 +114,7 @@ class FAQDataset(Dataset):
 
 class FAQDataModule(pl.LightningDataModule):
     def __init__(self, train_file,
+                 val_file,
                  test_file,
                  max_seq_len=128,
                  batch_size=32):
@@ -116,6 +122,7 @@ class FAQDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.max_seq_len = max_seq_len
         self.train_file_path = train_file
+        self.val_file_path = val_file
         self.test_file_path = test_file
 
     @staticmethod
@@ -129,6 +136,8 @@ class FAQDataModule(pl.LightningDataModule):
         # split dataset
         self.faq_train = FAQDataset(self.train_file_path,
                                       self.max_seq_len)
+        self.faq_val = FAQDataset(self.val_file_path,
+                                     self.max_seq_len)
         self.faq_test = FAQDataset(self.test_file_path,
                                      self.max_seq_len)
 
@@ -140,7 +149,7 @@ class FAQDataModule(pl.LightningDataModule):
         return faq_train
 
     def val_dataloader(self):
-        faq_val = DataLoader(self.faq_test,
+        faq_val = DataLoader(self.faq_val,
                               batch_size=self.batch_size,
                               num_workers=5, shuffle=False)
         return faq_val
@@ -254,6 +263,7 @@ if __name__ == '__main__':
     if args.subtask == 'FAQ':
         # init data
         dm = FAQDataModule(args.train_file,
+                            args.val_file,
                             args.test_file,
                             batch_size=args.batch_size, max_seq_len=args.max_seq_len)
         checkpoint_callback = pl.callbacks.ModelCheckpoint(monitor='val_acc',
@@ -264,20 +274,6 @@ if __name__ == '__main__':
                                                            mode='max',
                                                            save_top_k=-1,
                                                            prefix=f'{args.subtask}')
-    elif args.subtask == 'FAQ':
-        # init data
-        dm = FAQDataModule(args.train_file,
-                            args.test_file,
-                            batch_size=args.batch_size, max_seq_len=args.max_seq_len)
-        checkpoint_callback = pl.callbacks.ModelCheckpoint(monitor='val_acc',
-                                                           dirpath=args.default_root_dir,
-                                                           filename='model_chp/{epoch:02d}-{val_acc:.3f}',
-                                                           verbose=True,
-                                                           save_last=True,
-                                                           mode='max',
-                                                           save_top_k=-1,
-                                                           prefix=f'{args.subtask}')
-
     else:
         # add more subtasks
         assert False
