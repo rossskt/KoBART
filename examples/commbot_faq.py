@@ -156,6 +156,8 @@ class Classification(pl.LightningModule):
     def __init__(self, hparams, **kwargs) -> None:
         super(Classification, self).__init__()
         self.hparams = hparams
+        self.save_hyperparameters()
+
 
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -212,7 +214,7 @@ class Classification(pl.LightningModule):
 class KoBARTClassification(Classification):
     def __init__(self, hparams, **kwargs):
         super(KoBARTClassification, self).__init__(hparams, **kwargs)
-        self.model = BartForSequenceClassification.from_pretrained(get_pytorch_kobart_model())
+        self.model = BartForSequenceClassification.from_pretrained(get_pytorch_kobart_model(), num_labels=1126)
         self.model.train()
         self.metric_acc = pl.metrics.classification.Accuracy()
 
